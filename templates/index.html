@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Surety Details</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #ffffff;
+            --background-color: #f4f4f9;
+            --text-color: #333;
+            --table-hover-color: #f1f1f1;
+            --dark-background: #121212;
+            --dark-text: #eaeaea;
+            --dark-table-hover: #1f1f1f;
+        }
+
+        [data-theme="dark"] {
+            --background-color: var(--dark-background);
+            --text-color: var(--dark-text);
+            --table-hover-color: var(--dark-table-hover);
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            text-align: center;
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .theme-toggle:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 300px;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+            outline: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .section2 {
+            margin-top: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            text-align: left;
+            background-color: var(--secondary-color);
+            border-radius: 10px;
+            overflow: hidden;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            font-weight: bold;
+            text-align: center;
+        }
+
+        tr:hover {
+            background-color: var(--table-hover-color);
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            input[type="text"] {
+                width: 80%;
+            }
+
+            table {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+<h1>सैनी को-ऑपरेटिव<br> ट्रेड & डट सोसायटी<br>लि.<br>2420-21, बाजार कमरा बंगश,<br> दरिया गंज, नई दिल्ली - 110002</h1>
+
+<button class="theme-toggle" onclick="toggleTheme()">Toggle Dark Mode</button>
+
+<div class="container">
+    <input type="text" id="suretyIdInput" placeholder="Enter Surety ID">
+    <button onclick="fetchLoanData()">Get Loan Details</button>
+</div>
+
+<div class="section2">
+    <h2>Loan Surety Details</h2>
+    <table id="loanTable">
+        <thead>
+            <tr>
+                <th>Sr No.</th>
+                <th>Name</th>
+                <th>Loan Date</th>
+                <th>Loan Amt</th>
+                <th>Inst Amt</th>
+                <th>Int Amt</th>
+                <th>P Int Amt</th>
+                <th>Stage</th>
+            </tr>
+        </thead>
+        <tbody id="loanData">
+            <!-- Data will be dynamically added here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Dark Mode Toggle
+    function toggleTheme() {
+        const body = document.body;
+        const currentTheme = body.getAttribute('data-theme');
+        body.setAttribute('data-theme', currentTheme === 'light' ? 'dark' : 'light');
+    }
+
+    // Fetch Loan Data
+    async function fetchLoanData() {
+        const suretyId = document.getElementById('suretyIdInput').value.trim();
+        
+        if (!suretyId) {
+            alert("Please enter a Surety ID");
+            return;
+        }
+
+        const response = await fetch(`/loans?surety_id=${suretyId}`);
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            alert(errorData.error || 'Failed to fetch loan data');
+            return;
+        }
+
+        const data = await response.json();
+        const loanDataElement = document.getElementById('loanData');
+        loanDataElement.innerHTML = '';
+
+        if (data.length === 0) {
+            alert("No loan details found for the provided Surety ID.");
+            document.getElementById('loanTable').style.display = 'none';
+            return;
+        }
+
+        data.forEach((loanDetail, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${loanDetail.member_name} (${loanDetail.member_id})<br>${loanDetail.gaurdian_relation} ${loanDetail.gaurdian_name}<br>${loanDetail.present_add1}<br>${loanDetail.pin}</td>
+                <td>${new Date(loanDetail.start_date).toLocaleDateString()}</td>
+                <td>${loanDetail.dr_loan_amt}</td>
+                <td>${loanDetail.inst_amt}</td>
+                <td>${loanDetail.int_amt}</td>
+                <td>${loanDetail.pnl_int_amt}</td>
+                <td>${loanDetail.stage_name}</td>`;
+            loanDataElement.appendChild(row);
+        });
+
+        document.getElementById('loanTable').style.display = 'table';
+    }
+</script>
+
+</body>
+</html>
